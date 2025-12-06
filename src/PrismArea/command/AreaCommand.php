@@ -52,6 +52,10 @@ class AreaCommand extends Command
                 CommandParameter::standard("name", AvailableCommandsPacket::ARG_TYPE_RAWTEXT, 0, false),
             ]),
             new CommandOverload(chaining: false, parameters: [
+                CommandParameter::enum("sub", new CommandHardEnum("Enum#" . mt_rand(9999, 99999999), ["delete"], false), 0, false),
+                CommandParameter::standard("name", AvailableCommandsPacket::ARG_TYPE_RAWTEXT, 0, false),
+            ]),
+            new CommandOverload(chaining: false, parameters: [
                 CommandParameter::enum("sub", new CommandHardEnum("Enum#" . mt_rand(9999, 99999999), ["prioritize"], false), 0, false),
                 CommandParameter::standard("target", AvailableCommandsPacket::ARG_TYPE_RAWTEXT, 0, false),
                 CommandParameter::standard("reference", AvailableCommandsPacket::ARG_TYPE_RAWTEXT, 0, false),

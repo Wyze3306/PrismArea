@@ -6,9 +6,6 @@ authors:
   - Zwuiix
 depend:
   - EasyEdit # Required for area selection
-  - PrismAPI # Required for Prism integration
-support:
-  - PiggyFactions
 
 permissions:
   prism.area.*:

@@ -6,6 +6,7 @@ use platz1de\EasyEdit\command\exception\NoSelectionException;
 use platz1de\EasyEdit\math\BlockVector;
 use platz1de\EasyEdit\session\Session;
 use platz1de\EasyEdit\session\SessionManager as SManager;
+use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
@@ -15,14 +16,13 @@ use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\network\mcpe\protocol\types\command\raw\CommandEnumConstraintRawData;
 use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
-use PrismAPI\utils\PrismCommand;
 use PrismArea\area\Area;
 use PrismArea\area\AreaManager;
 use PrismArea\gui\AreaEditGUI;
 use PrismArea\session\SessionManager;
 use PrismArea\types\Translatable;
 
-class AreaCommand extends PrismCommand
+class AreaCommand extends Command
 {
     public function __construct()
     {

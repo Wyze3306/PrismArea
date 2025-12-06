@@ -2,10 +2,10 @@
 
 namespace PrismArea\gui;
 
-use linesia\wyze\lib\muqsit\invmenu\InvMenu;
-use linesia\wyze\lib\muqsit\invmenu\transaction\InvMenuTransaction;
-use linesia\wyze\lib\muqsit\invmenu\transaction\InvMenuTransactionResult;
-use linesia\wyze\lib\muqsit\invmenu\type\InvMenuTypeIds;
+use PrismArea\libs\muqsit\invmenu\InvMenu;
+use PrismArea\libs\muqsit\invmenu\transaction\InvMenuTransaction;
+use PrismArea\libs\muqsit\invmenu\transaction\InvMenuTransactionResult;
+use PrismArea\libs\muqsit\invmenu\type\InvMenuTypeIds;
 use pocketmine\inventory\Inventory;
 use pocketmine\inventory\transaction\action\DropItemAction;
 use pocketmine\item\Item;

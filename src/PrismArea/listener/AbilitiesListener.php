@@ -15,9 +15,8 @@ use pocketmine\network\mcpe\protocol\types\BoolGameRule;
 use pocketmine\network\mcpe\protocol\types\inventory\ItemStackWrapper;
 use pocketmine\network\mcpe\protocol\UpdateAbilitiesPacket;
 use pocketmine\player\Player;
-use PrismAPI\item\ItemFactory;
-use PrismAPI\types\ItemLockMode;
 use PrismArea\Loader;
+use PrismArea\PrismAPI;
 use PrismArea\session\Session;
 use PrismArea\session\SessionManager;
 use PrismArea\timings\TimingsManager;
@@ -174,7 +173,7 @@ class AbilitiesListener
                 $itemWrapper = $pk->items[$i];
 
                 $item = TypeConverter::getInstance()->netItemStackToCore($itemWrapper->getItemStack());
-                $pk->items[$i] = new ItemStackWrapper($itemWrapper->getStackId(), $converter->coreItemStackToNet(ItemFactory::LOCK($item, ItemLockMode::FULL_INVENTORY)));
+                $pk->items[$i] = new ItemStackWrapper($itemWrapper->getStackId(), $converter->coreItemStackToNet(PrismAPI::LOCK($item, PrismAPI::ItemLockMode_FULL_INVENTORY)));
             }
         } finally {
             $timings->stopTiming(); // Stop timing the inventory update

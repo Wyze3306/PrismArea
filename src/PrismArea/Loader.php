@@ -2,19 +2,14 @@
 
 namespace PrismArea;
 
-use DaPigGuy\PiggyFactions\PiggyFactions;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\SingletonTrait;
-use PrismAPI\Loader as PrismAPI;
-use PrismAPI\utils\ResourcePack;
 use PrismArea\area\AreaManager;
 use PrismArea\command\AreaCommand;
-use PrismArea\extensions\PiggyFactionsExtension;
 use PrismArea\lang\LangManager;
 use PrismArea\libs\muqsit\invmenu\InvMenuHandler;
 use PrismArea\listener\AbilitiesListener;
 use PrismArea\listener\BlockListener;
-use PrismArea\listener\CommandListener;
 use PrismArea\listener\PlayerListener;
 use PrismArea\listener\WorldListener;
 use PrismArea\timings\TimingsManager;
@@ -44,12 +39,16 @@ class Loader extends PluginBase
     {
         $config = $this->getConfig();
 
-        // Check if PrismAPI plugin is installed
-        if (!class_exists(PrismAPI::class)) {
-            $this->getLogger()->error("PrismAPI plugin not found. Disabling PrismArea.");
-            $this->getLogger()->error("You can download this API at https://github.com/PrismStudioMC/PrismAPI");
+        // Check if InvMenu plugin is installed
+        if (!class_exists(InvMenuHandler::class)) {
+            $this->getLogger()->error("InvMenu plugin not found. Please install it to use the area menu features.");
             $this->getServer()->getPluginManager()->disablePlugin($this);
             return;
+        }
+
+        // Check if InvMenuHandler is already registered
+        if (!InvMenuHandler::isRegistered()) {
+            InvMenuHandler::register($this);
         }
 
         $timingsManager = TimingsManager::getInstance();
@@ -71,7 +70,7 @@ class Loader extends PluginBase
         }
 
         $this->getServer()->getCommandMap()->register("area", new AreaCommand());
-        ResourcePack::load(Path::join($this->getDataFolder(), "pack.zip")); // Load the resource pack
+        PrismAPI::load(Path::join($this->getDataFolder(), "pack.zip")); // Load the resource pack
     }
 
     /**

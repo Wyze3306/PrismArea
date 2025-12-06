@@ -9,10 +9,10 @@ use platz1de\EasyEdit\session\SessionManager as SManager;
 use pocketmine\command\CommandSender;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
-use pocketmine\network\mcpe\protocol\types\command\CommandEnum;
-use pocketmine\network\mcpe\protocol\types\command\CommandEnumConstraint;
+use pocketmine\network\mcpe\protocol\types\command\CommandHardEnum;
 use pocketmine\network\mcpe\protocol\types\command\CommandOverload;
 use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
+use pocketmine\network\mcpe\protocol\types\command\raw\CommandEnumConstraintRawData;
 use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
 use PrismAPI\utils\PrismCommand;
@@ -36,45 +36,45 @@ class AreaCommand extends PrismCommand
 
     /**
      * Builds the command overloads for the area command.
-     * @param CommandEnum[] $hardcodedEnums
-     * @param CommandEnum[] $softEnums
-     * @param CommandEnumConstraint[] $enumConstraints
+     * @param CommandHardEnum[] $hardcodedEnums
+     * @param CommandHardEnum[] $softEnums
+     * @param CommandEnumConstraintRawData[] $enumConstraints
      * @return CommandOverload[]
      */
     public function buildOverloads(array &$hardcodedEnums, array &$softEnums, array &$enumConstraints): array
     {
         return [
             new CommandOverload(chaining: false, parameters: [
-                CommandParameter::enum("sub", new CommandEnum("Enum#" . mt_rand(9999, 99999999), ["list"], false), 0, false),
+                CommandParameter::enum("sub", new CommandHardEnum("Enum#" . mt_rand(9999, 99999999), ["list"], false), 0, false),
             ]),
             new CommandOverload(chaining: false, parameters: [
-                CommandParameter::enum("sub", new CommandEnum("Enum#" . mt_rand(9999, 99999999), ["create"], false), 0, false),
+                CommandParameter::enum("sub", new CommandHardEnum("Enum#" . mt_rand(9999, 99999999), ["create"], false), 0, false),
                 CommandParameter::standard("name", AvailableCommandsPacket::ARG_TYPE_RAWTEXT, 0, false),
             ]),
             new CommandOverload(chaining: false, parameters: [
-                CommandParameter::enum("sub", new CommandEnum("Enum#" . mt_rand(9999, 99999999), ["prioritize"], false), 0, false),
+                CommandParameter::enum("sub", new CommandHardEnum("Enum#" . mt_rand(9999, 99999999), ["prioritize"], false), 0, false),
                 CommandParameter::standard("target", AvailableCommandsPacket::ARG_TYPE_RAWTEXT, 0, false),
                 CommandParameter::standard("reference", AvailableCommandsPacket::ARG_TYPE_RAWTEXT, 0, false),
             ]),
             new CommandOverload(chaining: false, parameters: [
-                CommandParameter::enum("sub", new CommandEnum("Enum#" . mt_rand(9999, 99999999), ["edit"], false), 0, false),
+                CommandParameter::enum("sub", new CommandHardEnum("Enum#" . mt_rand(9999, 99999999), ["edit"], false), 0, false),
                 CommandParameter::standard("name", AvailableCommandsPacket::ARG_TYPE_RAWTEXT, 0, false),
             ]),
             new CommandOverload(chaining: false, parameters: [
-                CommandParameter::enum("sub", new CommandEnum("Enum#" . mt_rand(9999, 99999999), ["copy"], false), 0, false),
+                CommandParameter::enum("sub", new CommandHardEnum("Enum#" . mt_rand(9999, 99999999), ["copy"], false), 0, false),
                 CommandParameter::standard("area1", AvailableCommandsPacket::ARG_TYPE_RAWTEXT, 0, false),
                 CommandParameter::standard("area2", AvailableCommandsPacket::ARG_TYPE_RAWTEXT, 0, false),
             ]),
             new CommandOverload(chaining: false, parameters: [
-                CommandParameter::enum("sub", new CommandEnum("Enum#" . mt_rand(9999, 99999999), ["visualize"], false), 0, false),
+                CommandParameter::enum("sub", new CommandHardEnum("Enum#" . mt_rand(9999, 99999999), ["visualize"], false), 0, false),
                 CommandParameter::standard("name", AvailableCommandsPacket::ARG_TYPE_RAWTEXT, 0, false),
             ]),
             new CommandOverload(chaining: false, parameters: [
-                CommandParameter::enum("sub", new CommandEnum("Enum#" . mt_rand(9999, 99999999), ["select"], false), 0, false),
+                CommandParameter::enum("sub", new CommandHardEnum("Enum#" . mt_rand(9999, 99999999), ["select"], false), 0, false),
                 CommandParameter::standard("name", AvailableCommandsPacket::ARG_TYPE_RAWTEXT, 0, false),
             ]),
             new CommandOverload(chaining: false, parameters: [
-                CommandParameter::enum("sub", new CommandEnum("Enum#" . mt_rand(9999, 99999999), ["unselect"], false), 0, false),
+                CommandParameter::enum("sub", new CommandHardEnum("Enum#" . mt_rand(9999, 99999999), ["unselect"], false), 0, false),
                 CommandParameter::standard("name", AvailableCommandsPacket::ARG_TYPE_RAWTEXT, 0, false),
             ]),
         ];

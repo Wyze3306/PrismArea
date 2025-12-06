@@ -369,30 +369,6 @@ class PlayerListener implements Listener
     }
 
     /**
-     * @param PlayerEmoteEvent $ev
-     * @return void
-     * @priority HIGHEST
-     * @ignoreCancelled true
-     */
-    public function handlePlayerEmote(PlayerEmoteEvent $ev): void
-    {
-        $player = $ev->getPlayer();
-
-        // Check if the player is in an area
-        $area = $this->areaManager->find($player->getPosition());
-        if ($area === null) {
-            return; // No area found, nothing to do
-        }
-
-        // Check if the player can perform emotes in the area
-        if ($area->can(AreaFlag::PLAYER_EMOTES, $player, $player->getPosition())) {
-            return;
-        }
-
-        $ev->cancel();
-    }
-
-    /**
      * @param PlayerToggleSwimEvent $ev
      * @return void
      * @priority HIGHEST

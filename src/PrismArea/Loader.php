@@ -52,18 +52,6 @@ class Loader extends PluginBase
             return;
         }
 
-        // Check if InvMenu plugin is installed
-        if (!class_exists(InvMenuHandler::class)) {
-            $this->getLogger()->error("InvMenu plugin not found. Please install it to use the area menu features.");
-            $this->getServer()->getPluginManager()->disablePlugin($this);
-            return;
-        }
-
-        // Check if InvMenuHandler is already registered
-        if (!InvMenuHandler::isRegistered()) {
-            InvMenuHandler::register($this);
-        }
-
         $timingsManager = TimingsManager::getInstance();
         $timingsManager->load($this);
 
@@ -84,8 +72,6 @@ class Loader extends PluginBase
 
         $this->getServer()->getCommandMap()->register("area", new AreaCommand());
         ResourcePack::load(Path::join($this->getDataFolder(), "pack.zip")); // Load the resource pack
-
-        $this->loadExtensions(); // Load any extensions if available
     }
 
     /**
@@ -97,13 +83,5 @@ class Loader extends PluginBase
     public function onDisable(): void
     {
         AreaManager::getInstance()->close();
-    }
-
-    private function loadExtensions(): void
-    {
-        if (class_exists(PiggyFactions::class)) {
-            $this->getLogger()->info("PiggyFactions detected, loading PiggyFactions integration...");
-            $this->getServer()->getPluginManager()->registerEvents(new PiggyFactionsExtension(), $this);
-        }
     }
 }

@@ -154,8 +154,8 @@ class Session
     /**
      * Recalculates the abilities for the session.
      *
-     * This method is currently a placeholder and does not perform any actions.
-     * It can be extended in the future to implement permission recalculation logic.
+     * This method merges area restrictions with base gamemode abilities.
+     * Only area-controlled abilities are modified, other abilities (like fly) remain unchanged.
      * @param UpdateAbilitiesPacket|null $pk
      * @return void
      */
@@ -163,10 +163,12 @@ class Session
     {
         $player = $this->getPlayer();
 
-        $newAbilities = [];
+        $areaAbilities = [];
         $area = AreaManager::getInstance()->find($player->getPosition());
         if ($area !== null) {
-            $newAbilities = [
+            // Only define abilities that the area controls
+            // These will be merged with base gamemode abilities
+            $areaAbilities = [
                 AbilitiesLayer::ABILITY_BUILD => $area->can(AreaFlag::PLAYER_BUILD, $player),
                 AbilitiesLayer::ABILITY_MINE => $area->can(AreaFlag::PLAYER_BREAK, $player),
                 AbilitiesLayer::ABILITY_OPEN_CONTAINERS => $area->can(AreaFlag::PLAYER_CONTAINERS, $player),
@@ -178,7 +180,7 @@ class Session
             ];
         }
 
-        $ev = new PlayerRecalculateAbilitiesEvent($player, $this->abilities, $newAbilities);
+        $ev = new PlayerRecalculateAbilitiesEvent($player, $this->abilities, $areaAbilities);
         $ev->call();
 
         // If the new abilities are the same as the current abilities, we do not need to update anything
@@ -198,17 +200,46 @@ class Session
             $player->getNetworkSession()->getInvManager()?->syncAll();
         }
 
-        // If there are no new abilities, we just sync the current abilities
+        // If not in an area (empty abilities), just sync the default abilities
         if (empty($ev->getNewAbilities())) {
             $player->getNetworkSession()->syncAbilities($player);
             return;
         }
 
+        // Get base abilities from gamemode, then merge with area restrictions
+        $isCreative = $player->isCreative(true);
+        $isSpectator = $player->isSpectator();
+        
+        // Base abilities from gamemode (these are the default PocketMine abilities)
+        $baseAbilities = [
+            AbilitiesLayer::ABILITY_BUILD => true,
+            AbilitiesLayer::ABILITY_MINE => true,
+            AbilitiesLayer::RIGHT_CLICK => true,
+            AbilitiesLayer::ABILITY_OPEN_CONTAINERS => true,
+            AbilitiesLayer::ABILITY_ATTACK_PLAYERS => true,
+            AbilitiesLayer::ABILITY_ATTACK_MOBS => true,
+            AbilitiesLayer::ABILITY_OPERATOR => $player->hasPermission(DefaultPermissions::ROOT_OPERATOR),
+            7 => $isCreative || $isSpectator, // TELEPORT
+            8 => false, // INVULNERABLE (set by spectator layer)
+            9 => $isCreative || $isSpectator, // FLYING
+            10 => $isCreative || $isSpectator, // MAY_FLY
+            11 => $isCreative, // INSTABUILD
+            12 => false, // LIGHTNING (unused)
+            13 => $isSpectator, // FLY_SPEED (unused here)
+            14 => false, // WALK_SPEED (unused here)
+            15 => false, // MUTED
+            16 => false, // WORLD_BUILDER
+            17 => $isSpectator, // NO_CLIP
+        ];
+
+        // Merge: area abilities override base abilities
+        $finalAbilities = array_replace($baseAbilities, $ev->getNewAbilities());
+
         $pk = UpdateAbilitiesPacket::create(new AbilitiesData(
             $player->hasPermission(DefaultPermissions::ROOT_OPERATOR) ? CommandPermissions::OPERATOR : CommandPermissions::NORMAL,
             PlayerPermissions::MEMBER,
             $player->getId(),
-            [new Layer(AbilitiesLayer::LAYER_BASE, $ev->getNewAbilities(), $player->getFlightSpeedMultiplier(), 1, 0.1)]
+            [new Layer(AbilitiesLayer::LAYER_BASE, $finalAbilities, $player->getFlightSpeedMultiplier(), 1, 0.1)]
         ));
     }
 }

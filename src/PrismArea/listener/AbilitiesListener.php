@@ -105,15 +105,10 @@ class AbilitiesListener
         $data = $pk->getData();
         $layers = $data->getAbilityLayers();
 
-        // If the player is not in an area, we can skip further processing
+        // Find the base layer and check if we need to recalculate abilities
         foreach ($layers as $layer) {
             // Skip if the layer is not the base layer
             if ($layer->getLayerId() !== AbilitiesLayer::LAYER_BASE) {
-                continue;
-            }
-
-            // If the layer is the same as the session's abilities, we can skip further processing
-            if ($layer === $session->getAbilities()) {
                 continue;
             }
 
@@ -122,18 +117,23 @@ class AbilitiesListener
             $updateAbilitiesPacket = null;
             $session->recalculateAbilities($updateAbilitiesPacket);
 
-            // If the recalculated abilities packet is not null, we update the session's abilities
+            // If the recalculated abilities packet is not null, we need to replace the base layer
             if ($updateAbilitiesPacket !== null) {
-                // Merge the new abilities with the existing ones
-                $newAbilities = array_merge(
-                    $data->getAbilityLayers(),
-                    $updateAbilitiesPacket->getData()->getAbilityLayers(),
-                );
-                $session->setAbilities($newAbilities);
+                $updatedLayers = $updateAbilitiesPacket->getData()->getAbilityLayers();
+                
+                // Replace only the base layer, keep other layers intact
+                $newLayers = [];
+                foreach ($layers as $l) {
+                    if ($l->getLayerId() === AbilitiesLayer::LAYER_BASE) {
+                        $newLayers[] = $updatedLayers[0];
+                    } else {
+                        $newLayers[] = $l;
+                    }
+                }
 
                 $reflectionClass = new \ReflectionClass(AbilitiesData::class);
                 $abilityLayersProperty = $reflectionClass->getProperty('abilityLayers');
-                $abilityLayersProperty->setValue($data, $newAbilities);
+                $abilityLayersProperty->setValue($data, $newLayers);
 
                 break; // Exit the loop after processing the base layer
             }

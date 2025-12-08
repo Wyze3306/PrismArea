@@ -10,15 +10,27 @@ use ReflectionClass;
 use ReflectionException;
 use Symfony\Component\Filesystem\Path;
 
-/**
- * @method static Item LOCK(Item $item, int $mode = self::ItemLockMode_FULL)
- */
 class PrismAPI
 {
 
     const ItemLockMode_NONE = 0;
     const ItemLockMode_FULL = 1;
     const ItemLockMode_FULL_INVENTORY = 2;
+
+    /**
+     * Locks an item with the specified lock mode.
+     * This prevents the item from being moved/dropped in the inventory.
+     *
+     * @param Item $item The item to lock.
+     * @param int $mode The lock mode (ItemLockMode_NONE, ItemLockMode_FULL, or ItemLockMode_FULL_INVENTORY).
+     * @return Item The locked item.
+     * @see https://github.com/PrismStudioMC/PrismAPI/blob/main/src/PrismAPI/item/ItemFactory.php
+     */
+    public static function LOCK(Item $item, int $mode = self::ItemLockMode_FULL): Item
+    {
+        $item->getNamedTag()->setByte("minecraft:item_lock", $mode);
+        return $item;
+    }
 
     /**
      * Loads a resource pack from the specified path.

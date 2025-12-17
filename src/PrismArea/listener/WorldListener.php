@@ -56,9 +56,9 @@ class WorldListener implements Listener
                 if ($damager instanceof Player) {
                     $this->sessionManager->getOrCreate($damager)
                         ->sendMessage(Translatable::WORLD_ATTACK_PLAYERS_DENIED, $entity->getName());
+                    $ev->cancel();
+                    return;
                 }
-                $ev->cancel();
-                return;
             }
         } elseif (!$area->hasFlag(AreaFlag::WORLD_ATTACK_MOBS)) {
             // Cancel damage to mobs if the area does not allow it

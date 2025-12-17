@@ -47,7 +47,7 @@ class Session
         $origin = $this->player->getNetworkSession();
 
         $this->lang = LangManager::getInstance()->getLang($this->player->getLocale());
-        $this->sendMessages = Loader::getInstance()->getConfig()->get("use-messages", true);
+        $this->sendMessages = Loader::getInstance()->getConfig()->get("send-messages", false);
 
         $reflectionClass = new \ReflectionClass(NetworkSession::class);
         $disposeHooksProperty = $reflectionClass->getProperty("disposeHooks");

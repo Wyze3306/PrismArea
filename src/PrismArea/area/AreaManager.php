@@ -92,9 +92,23 @@ class AreaManager
      */
     public function close(): void
     {
+        $existing = [];
+        if (is_file($this->dataFolder)) {
+            $json = file_get_contents($this->dataFolder);
+            if ($json !== false && $json !== '') {
+                try {
+                    $existing = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+                } catch (\JsonException $e) {
+                    Loader::getInstance()->getLogger()->error("Error encoding areas to JSON: " . $e->getMessage());
+                }
+            }
+        }
+
+        $merged = array_merge($existing, $this->areas);
+
         try {
-            $content = json_encode($this->areas, JSON_PRETTY_PRINT | JSON_BIGINT_AS_STRING | JSON_THROW_ON_ERROR);
-        } catch (\Exception $exception) {
+            $content = json_encode($merged, JSON_PRETTY_PRINT | JSON_BIGINT_AS_STRING | JSON_THROW_ON_ERROR);
+        } catch (\JsonException $exception) {
             Loader::getInstance()->getLogger()->error("Error encoding areas to JSON: " . $exception->getMessage());
             return;
         }

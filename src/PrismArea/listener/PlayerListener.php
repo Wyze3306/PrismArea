@@ -253,14 +253,6 @@ class PlayerListener implements Listener
             return; // No area found, nothing to do
         }
 
-        // Check if the player can use items in the area
-        if (!$area->can(AreaFlag::PLAYER_USE_ITEMS, $player, $player->getPosition())) {
-            $this->sessionManager->getOrCreate($player)
-                ->sendMessage(Translatable::PLAYER_USE_ITEMS_DENIED, $item->getName());
-            $ev->cancel();
-            return;
-        }
-
         // Check for specific item types and their sub-flags
         $map = [
             EnderPearl::class => AreaSubFlag::PLAYER_USE_ITEMS_ENDER_PEARL,
@@ -389,8 +381,8 @@ class PlayerListener implements Listener
             return; // No area found, nothing to do
         }
 
-        // Check if the player can perform emotes in the area
-        if ($area->can(AreaFlag::PLAYER_EMOTE, $player, $player->getPosition())) {
+        // Check if the player can perform swimming in the area
+        if ($area->can(AreaFlag::PLAYER_SWIMMING, $player, $player->getPosition())) {
             return;
         }
 

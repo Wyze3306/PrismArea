@@ -107,6 +107,27 @@ class Area implements \JsonSerializable
     }
 
     /**
+     * Checks if a position is inside the area, including boundaries.
+     * This method uses <= and >= to include blocks at the exact boundaries.
+     *
+     * @param Position|Vector3 $position
+     * @return bool
+     */
+    public function isPositionInside(Position|Vector3 $position): bool
+    {
+        $x = $position->x;
+        $y = $position->y;
+        $z = $position->z;
+
+        return $x >= $this->aabb->minX
+            && $x <= $this->aabb->maxX
+            && $y >= $this->aabb->minY
+            && $y <= $this->aabb->maxY
+            && $z >= $this->aabb->minZ
+            && $z <= $this->aabb->maxZ;
+    }
+
+    /**
      * @param AreaFlag|AreaSubFlag $flag
      * @param Entity $entity
      * @param Position|null $pos
@@ -120,7 +141,7 @@ class Area implements \JsonSerializable
         }
 
         // Check if the entity is in the area
-        if (!$this->aabb->isVectorInside($pos)) {
+        if (!$this->isPositionInside($pos)) {
             return true;
         }
 

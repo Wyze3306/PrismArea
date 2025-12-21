@@ -123,7 +123,7 @@ class AreaCommand extends Command
                     }
 
                     $areaList = implode(", ", array_map(fn (Area $area) => $area->getName(), $areas));
-                    $session->sendMessage(Translatable::AREA_COMMAND_LIST_SUCCESS, $areaList);
+                    $sender->sendMessage(TextFormat::GREEN . "Area list: " . $areaList);
                     break;
                 }
             case "create":

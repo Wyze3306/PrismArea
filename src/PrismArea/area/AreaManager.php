@@ -5,7 +5,7 @@ namespace PrismArea\area;
 use pocketmine\permission\DefaultPermissions;
 use pocketmine\permission\Permission;
 use pocketmine\permission\PermissionManager;
-use pocketmine\utils\Filesystem;
+use pocketmine\utils\Config;
 use pocketmine\utils\SingletonTrait;
 use pocketmine\world\Position;
 use PrismArea\Loader;
@@ -21,7 +21,7 @@ class AreaManager
     private array $areas = [];
     private array $indexedAreas = [];
 
-    private string $dataFolder;
+    private ?Config $config = null;
 
     public function __construct()
     {
@@ -56,33 +56,15 @@ class AreaManager
      */
     public function load(string $path): void
     {
-        $this->dataFolder = $path;
+        $this->config = new Config($path, Config::JSON, []);
+        $data = $this->config->getAll();
 
-        if (!file_exists($this->dataFolder)) {
-            Loader::getInstance()->getLogger()->debug("Ignoring area data folder, because it does not exist: {$this->dataFolder}");
-            return;
+        foreach ($data as $k => $values) {
+            $area = Area::parse($values);
+            $this->register($area);
         }
 
-        try {
-            $content = file_get_contents($this->dataFolder);
-            if ($content === false) {
-                throw new \Exception("Failed to read file: {$this->dataFolder}");
-            }
-
-            $data = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
-            if (!is_array($data)) {
-                throw new \Exception("Invalid object format in path: {$this->dataFolder}");
-            }
-
-            foreach ($data as $k => $values) {
-                $area = Area::parse($values);
-                $this->register($area);
-            }
-
-            Loader::getInstance()->getLogger()->notice("Loaded " . count($this->areas) . " areas from {$this->dataFolder}");
-        } catch (\Exception $exception) {
-            Loader::getInstance()->getLogger()->error("Error processing file {$this->dataFolder}: " . $exception->getMessage());
-        }
+        Loader::getInstance()->getLogger()->notice("Loaded " . count($this->areas) . " areas from {$path}");
     }
 
     /**
@@ -92,18 +74,17 @@ class AreaManager
      */
     public function close(): void
     {
-        try {
-            $content = json_encode($this->areas, JSON_PRETTY_PRINT | JSON_BIGINT_AS_STRING | JSON_THROW_ON_ERROR);
-        } catch (\Exception $exception) {
-            Loader::getInstance()->getLogger()->error("Error encoding areas to JSON: " . $exception->getMessage());
+        if ($this->config === null) {
             return;
         }
 
-        try {
-            Filesystem::safeFilePutContents($this->dataFolder, $content);
-        } catch (\Exception $exception) {
-            Loader::getInstance()->getLogger()->error("Error writing areas to file: " . $exception->getMessage());
+        $data = [];
+        foreach ($this->areas as $area) {
+            $data[strtolower($area->getName())] = $area->jsonSerialize();
         }
+
+        $this->config->setAll($data);
+        $this->config->save();
     }
 
     /**
@@ -206,7 +187,7 @@ class AreaManager
         $timings->startTiming(); // Start timing the area search
         try {
             foreach ($this->indexedAreas[$chunkHash] ?? [] as $_ => $area) {
-                if ($area->getAABB()->isVectorInside($position)) {
+                if ($area->isPositionInside($position)) {
                     return $area;
                 }
             }
@@ -296,6 +277,7 @@ class AreaManager
 
     /**
      * Sorts the areas in a specific chunk by priority and name.
+     * Areas with higher priority come first (DESC order).
      *
      * @param string $chunkHash
      * @return void
@@ -311,7 +293,7 @@ class AreaManager
             $pb = $b->getPriority();
             return $pa === $pb
                 ? strcmp(strtolower($a->getName()), strtolower($b->getName()))
-                : ($pa <=> $pb);
+                : ($pb <=> $pa); // DESC: higher priority first
         });
     }
 

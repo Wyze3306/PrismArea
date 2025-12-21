@@ -13,7 +13,6 @@ use PrismArea\listener\BlockListener;
 use PrismArea\listener\PlayerListener;
 use PrismArea\listener\WorldListener;
 use PrismArea\timings\TimingsManager;
-use Symfony\Component\Filesystem\Path;
 
 class Loader extends PluginBase
 {
@@ -24,7 +23,7 @@ class Loader extends PluginBase
         self::setInstance($this);
         $this->saveDefaultConfig();
 
-        @mkdir(Path::join($this->getDataFolder(), "lang"), 0777, true);
+        @mkdir($this->getDataFolder() . "/lang", 0777, true);
         $this->saveResource("lang/en_US.ini");
         $this->saveResource("pack.zip");
     }
@@ -55,10 +54,10 @@ class Loader extends PluginBase
         $timingsManager->load($this);
 
         $areaManager = AreaManager::getInstance();
-        $areaManager->load(Path::join($this->getDataFolder(), "areas.json"));
+        $areaManager->load($this->getDataFolder() . "/areas.json");
 
         $langManager = LangManager::getInstance();
-        $langManager->load(Path::join($this->getDataFolder(), "lang"));
+        $langManager->load($this->getDataFolder() . "/lang");
 
         $this->getServer()->getPluginManager()->registerEvents(new PlayerListener($this, $areaManager), $this);
         $this->getServer()->getPluginManager()->registerEvents(new WorldListener($this, $areaManager), $this);
@@ -70,7 +69,7 @@ class Loader extends PluginBase
         }
 
         $this->getServer()->getCommandMap()->register("area", new AreaCommand());
-        PrismAPI::load(Path::join($this->getDataFolder(), "pack.zip")); // Load the resource pack
+        PrismAPI::load($this->getDataFolder() . "/pack.zip"); // Load the resource pack
     }
 
     /**

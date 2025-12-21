@@ -40,7 +40,7 @@ class AbilitiesListener
             $this->loader->getServer()->getPluginManager()->registerEvent(
                 DataPacketReceiveEvent::class,
                 $this->handleReceive(...),
-                EventPriority::MONITOR,
+                EventPriority::LOW,
                 $this->loader,
             );
         } catch (\Throwable $e) {

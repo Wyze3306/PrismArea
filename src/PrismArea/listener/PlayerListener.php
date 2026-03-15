@@ -2,6 +2,7 @@
 
 namespace PrismArea\listener;
 
+use linesia\wyze\lib\SenseiTarzan\ExtraEvent\Class\EventAttribute;
 use pocketmine\block\Air;
 use pocketmine\block\Block;
 use pocketmine\block\tile\Barrel;
@@ -15,6 +16,7 @@ use pocketmine\block\tile\ShulkerBox;
 use pocketmine\event\block\BlockBreakEvent;
 use pocketmine\event\block\BlockPlaceEvent;
 use pocketmine\event\entity\EntityItemPickupEvent;
+use pocketmine\event\EventPriority;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerBucketEvent;
 use pocketmine\event\player\PlayerDropItemEvent;
@@ -63,6 +65,7 @@ class PlayerListener implements Listener
      * @priority HIGHEST
      * @ignoreCancelled true
      */
+    #[EventAttribute(EventPriority::LOW)]
     public function handlePlayerInteract(PlayerInteractEvent $ev): void
     {
         $player = $ev->getPlayer();
@@ -184,9 +187,10 @@ class PlayerListener implements Listener
     /**
      * @param BlockBreakEvent $ev
      * @return void
-     * @priority HIGHEST
+     * @priority LOWEST
      * @ignoreCancelled true
      */
+    #[EventAttribute(EventPriority::LOW)]
     public function handleBlockBreak(BlockBreakEvent $ev): void
     {
         $player = $ev->getPlayer();
@@ -212,6 +216,7 @@ class PlayerListener implements Listener
      * @priority HIGHEST
      * @ignoreCancelled true
      */
+    #[EventAttribute(EventPriority::LOW)]
     public function handleBlockPlace(BlockPlaceEvent $ev): void
     {
         $player = $ev->getPlayer();
@@ -242,6 +247,7 @@ class PlayerListener implements Listener
      * @priority HIGHEST
      * @ignoreCancelled true
      */
+    #[EventAttribute(EventPriority::LOW)]
     public function handlePlayerItemUse(PlayerItemUseEvent $ev): void
     {
         $player = $ev->getPlayer();
@@ -251,6 +257,13 @@ class PlayerListener implements Listener
         $area = $this->areaManager->find($player->getPosition());
         if ($area === null) {
             return; // No area found, nothing to do
+        }
+
+        if (!$area->can(AreaFlag::PLAYER_USE_ITEMS, $player, $player->getPosition())) {
+            $this->sessionManager->getOrCreate($player)
+                ->sendMessage(Translatable::PLAYER_USE_ITEMS_DENIED, $item->getName());
+            $ev->cancel();
+            return;
         }
 
         // Check for specific item types and their sub-flags
